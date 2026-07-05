@@ -10,22 +10,23 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.json">
 <style>
-  :root{ --blue:#001689; --blue-dark:#000d52; --yellow:#EBCD33; --grey:#1c1c1e; --grey-light:#2c2c2e; --green:#8CE99A; }
+  :root{ --blue:#001689; --blue-dark:#000d52; --yellow:#EBCD33; --grey:#1c1c1e; --grey-light:#2c2c2e; --green:#8CE99A; --cyan:#7fd6ff; }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{ margin:0; padding:0; height:100%; overscroll-behavior:none; touch-action:manipulation;
     -webkit-user-select:none; user-select:none; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:#000; }
-  #app{ height:100vh; height:100svh; display:flex; flex-direction:column;
-    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
-    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); }
+  #app{ height:100vh; height:100svh; display:flex; flex-direction:column; }
   #app.detailed-layout .zone.home{ flex:2.2 1 0; }
   #app.detailed-layout .zone.away{ flex:1 1 0; }
   .zone{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; cursor:pointer; }
   .zone.detailed{ justify-content:flex-start; align-items:stretch; cursor:default; }
   .zone:active{ filter:brightness(1.15); }
   .zone.home{ background:linear-gradient(180deg, var(--blue) 0%, var(--blue-dark) 100%); }
-  .zone.away{ background:linear-gradient(180deg, var(--grey-light) 0%, var(--grey) 100%); }
-  .home-sticky{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; padding-top:6px; }
-  .player-scroll{ flex:1 1 auto; overflow-y:auto; width:100%; -webkit-overflow-scrolling:touch; }
+  .zone.away{ background:linear-gradient(180deg, var(--grey-light) 0%, var(--grey) 100%);
+    padding-bottom:env(safe-area-inset-bottom); padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); }
+  .home-sticky{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center;
+    padding-top:max(6px, env(safe-area-inset-top)); padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); }
+  .player-scroll{ flex:1 1 auto; overflow-y:auto; width:100%; -webkit-overflow-scrolling:touch;
+    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); padding-bottom:env(safe-area-inset-bottom); }
   .logo{ max-width:45vmin; max-height:18vmin; margin-bottom:6px; pointer-events:none; }
   .zone.detailed .logo{ max-width:32vmin; max-height:12vmin; }
   input.away-name{ background:transparent; border:none; border-bottom:2px solid rgba(255,255,255,0.4); color:#fff;
@@ -49,13 +50,17 @@
     #controls{ flex-direction:column; border-top:none; border-bottom:none; border-left:2px solid var(--yellow); border-right:2px solid var(--yellow); padding:14px 10px; }
   }
 
-  .player-grid{ display:flex; flex-wrap:wrap; gap:8px; padding:6px 10px; width:100%; justify-content:center; }
-  .section-label{ font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.5); margin:8px 0 2px; pointer-events:none; text-align:center; width:100%; }
-  .player-btn{ background:rgba(255,255,255,0.08); border:2px solid var(--yellow); border-radius:10px; padding:8px 12px; color:var(--yellow); font-weight:700; min-width:78px; text-align:center; -webkit-user-select:none; user-select:none; }
+  .player-grid{ display:flex; flex-wrap:wrap; gap:6px; padding:4px 8px; width:100%; justify-content:center; }
+  .section-label{ font-size:12px; font-weight:800; letter-spacing:1.2px; margin:6px 0 3px; pointer-events:none; text-align:center; width:100%;
+    padding-bottom:3px; border-bottom:1px solid currentColor; opacity:0.95; }
+  .section-label.attackers{ color:var(--yellow); }
+  .section-label.midcourt{ color:var(--green); }
+  .section-label.defenders{ color:var(--cyan); }
+  .player-btn{ background:rgba(255,255,255,0.08); border:2px solid var(--yellow); border-radius:8px; padding:6px 10px; color:var(--yellow); font-weight:700; min-width:70px; text-align:center; font-size:14px; -webkit-user-select:none; user-select:none; }
   .player-btn:active{ background:rgba(255,255,255,0.2); }
-  .player-btn.defender{ border-color:#7fd6ff; color:#7fd6ff; }
+  .player-btn.defender{ border-color:var(--cyan); color:var(--cyan); }
   .player-btn.midcourt{ border-color:var(--green); color:var(--green); }
-  .player-btn .cnt{ display:block; font-size:20px; margin-top:2px; }
+  .player-btn .cnt{ display:block; font-size:17px; margin-top:1px; }
   .empty-msg{ color:rgba(255,255,255,0.5); font-size:13px; text-align:center; padding:20px; line-height:1.5; }
 
   .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;
@@ -65,13 +70,10 @@
     padding:18px; color:#fff; -webkit-user-select:auto; user-select:auto; touch-action:auto; }
   .modal h2{ margin:0 0 12px; color:var(--yellow); font-size:18px; letter-spacing:1px; }
   .modal h3{ margin:14px 0 6px; color:#fff; font-size:14px; }
-  .toggle-row{ display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.06); border-radius:10px; padding:10px 12px; margin-bottom:14px; }
-  .switch{ position:relative; width:46px; height:26px; }
-  .switch input{ opacity:0; width:0; height:0; }
-  .slider{ position:absolute; inset:0; background:#444; border-radius:26px; cursor:pointer; transition:0.2s; }
-  .slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:0.2s; }
-  input:checked + .slider{ background:var(--yellow); }
-  input:checked + .slider:before{ transform:translateX(20px); }
+  .mode-btn{ width:100%; padding:18px; margin-bottom:12px; font-size:16px; border-radius:12px; }
+  .mode-btn.primary{ background:var(--yellow); color:#000; }
+  .mode-btn.secondary{ background:#222; color:#fff; border:2px solid var(--yellow); }
+  .mode-btn small{ display:block; font-weight:400; font-size:12px; opacity:0.75; margin-top:4px; }
   .squad-row{ display:flex; align-items:center; gap:8px; padding:10px 8px; border-radius:8px; margin-bottom:6px; background:rgba(255,255,255,0.05); }
   .squad-row.active{ outline:2px solid var(--yellow); }
   .squad-name-btn{ flex:1; background:none; border:none; color:#fff; font-weight:700; font-size:15px; text-align:left; padding:4px; }
@@ -102,7 +104,7 @@
 
   <div id="controls">
     <button id="undoBtn" disabled>UNDO</button>
-    <button id="settingsBtn" title="Squad settings">&#9881;</button>
+    <button id="settingsBtn" title="Squads">&#9881;</button>
     <button id="resetBtn">NEW MATCH</button>
   </div>
 
@@ -113,25 +115,32 @@
   </div>
 </div>
 
+<div class="modal-backdrop hidden" id="modeModalBackdrop">
+  <div class="modal">
+    <h2>New Match</h2>
+    <button class="mode-btn secondary" id="basicModeBtn">Basic Score Mode<small>Simple tap-anywhere scoring, like today.</small></button>
+    <button class="mode-btn primary" id="trackModeBtn">Player Track Mode<small>Pick a squad and track goals/interceptions.</small></button>
+    <div class="modal-actions"><button class="btn-secondary" id="modeCancelBtn" style="width:100%;">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="squadPickModalBackdrop">
+  <div class="modal">
+    <h2>Which Squad?</h2>
+    <div id="squadPickList"></div>
+    <div class="modal-actions"><button class="btn-secondary" id="squadPickCancelBtn" style="width:100%;">Cancel</button></div>
+  </div>
+</div>
+
 <div class="modal-backdrop hidden" id="squadModalBackdrop">
   <div class="modal">
     <button class="close-x" id="closeModalBtn">&times;</button>
     <h2>Squads</h2>
-
-    <div class="toggle-row">
-      <span>Track Players</span>
-      <label class="switch">
-        <input type="checkbox" id="trackToggle">
-        <span class="slider"></span>
-      </label>
-    </div>
-
     <div id="squadListView">
       <div id="squadList"></div>
       <button class="add-squad-btn" id="addSquadBtn">+ Add Squad</button>
       <button class="btn-danger" id="clearAllBtn">Clear All Data</button>
     </div>
-
     <div id="squadEditView" style="display:none;">
       <h3>Squad Name</h3>
       <input type="text" id="editSquadName" maxlength="30">
@@ -223,10 +232,10 @@
     renderHomeZone();
   }
 
-  function playerGroupHtml(names, type, label){
+  function playerGroupHtml(names, type, label, labelClass){
     var visible = names.filter(inRoster);
     if(visible.length === 0){ return ''; }
-    var html = '<div class="section-label">' + label + '</div><div class="player-grid">';
+    var html = '<div class="section-label ' + labelClass + '">' + label + '</div><div class="player-grid">';
     visible.forEach(function(name){
       var c = playerStats[name] ? playerStats[name].count : 0;
       var cls = type === 'defender' ? ' defender' : (type === 'midcourt' ? ' midcourt' : '');
@@ -249,9 +258,9 @@
         playerArea.innerHTML = '<div class="empty-msg">No players saved for ' + escapeHtml(squad.name) + ' yet.<br>Tap the settings icon below to add attackers.</div>';
       } else {
         var html = '';
-        html += playerGroupHtml(squad.attackers, 'attacker', 'ATTACKERS');
-        html += playerGroupHtml(squad.midcourt, 'midcourt', 'MID COURT (interceptions)');
-        html += playerGroupHtml(squad.defenders, 'defender', 'DEFENDERS (interceptions)');
+        html += playerGroupHtml(squad.attackers, 'attacker', 'ATTACKERS (GOALS)', 'attackers');
+        html += playerGroupHtml(squad.midcourt, 'midcourt', 'MID COURT (INTERCEPTIONS)', 'midcourt');
+        html += playerGroupHtml(squad.defenders, 'defender', 'DEFENDERS (INTERCEPTIONS)', 'defenders');
         if(html === ''){ html = '<div class="empty-msg">No one selected for today.<br>Tap NEW MATCH to pick who\'s playing.</div>'; }
         playerArea.innerHTML = html;
       }
@@ -319,17 +328,66 @@
     render();
   }
 
+  /* ---------- New Match: mode -> squad -> lineup flow ---------- */
+  var modeModalBackdrop = document.getElementById('modeModalBackdrop');
+  var squadPickModalBackdrop = document.getElementById('squadPickModalBackdrop');
+  var squadPickList = document.getElementById('squadPickList');
+
   document.getElementById('resetBtn').addEventListener('click', function(e){
     e.stopPropagation();
-    var squad = getActiveSquad();
-    var totalPlayers = squad ? (squad.attackers.length + squad.midcourt.length + squad.defenders.length) : 0;
-    if(data.trackPlayers && squad && totalPlayers > 0){
-      openLineupModal(squad);
-    } else {
-      if(confirm('Start a new match? This will reset the score to 0-0.')){
-        startNewMatch(null);
-      }
+    modeModalBackdrop.classList.remove('hidden');
+  });
+
+  document.getElementById('modeCancelBtn').addEventListener('click', function(){
+    modeModalBackdrop.classList.add('hidden');
+  });
+
+  document.getElementById('basicModeBtn').addEventListener('click', function(){
+    modeModalBackdrop.classList.add('hidden');
+    var hasProgress = home > 0 || away > 0 || actionHistory.length > 0;
+    if(hasProgress && !confirm('Start a new match? This will reset the score to 0-0.')){ return; }
+    data.trackPlayers = false;
+    saveData();
+    startNewMatch(null);
+  });
+
+  document.getElementById('trackModeBtn').addEventListener('click', function(){
+    modeModalBackdrop.classList.add('hidden');
+    if(data.squads.length === 0){
+      alert('No squads saved yet. Tap the settings icon (⚙) to create one first.');
+      return;
     }
+    openSquadPickModal();
+  });
+
+  function openSquadPickModal(){
+    var html = '';
+    data.squads.forEach(function(squad){
+      var activeClass = squad.id === data.activeSquadId ? ' active' : '';
+      html += '<div class="squad-row' + activeClass + '"><button class="squad-name-btn" data-pick="' + squad.id + '">' + escapeHtml(squad.name) + '</button></div>';
+    });
+    squadPickList.innerHTML = html;
+    squadPickList.querySelectorAll('[data-pick]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var squadId = btn.getAttribute('data-pick');
+        data.activeSquadId = squadId;
+        data.trackPlayers = true;
+        saveData();
+        squadPickModalBackdrop.classList.add('hidden');
+        var squad = getActiveSquad();
+        openLineupModal(squad);
+      });
+    });
+    squadPickModalBackdrop.classList.remove('hidden');
+  }
+  document.getElementById('squadPickCancelBtn').addEventListener('click', function(){
+    squadPickModalBackdrop.classList.add('hidden');
+  });
+  squadPickModalBackdrop.addEventListener('click', function(e){
+    if(e.target === squadPickModalBackdrop){ squadPickModalBackdrop.classList.add('hidden'); }
+  });
+  modeModalBackdrop.addEventListener('click', function(e){
+    if(e.target === modeModalBackdrop){ modeModalBackdrop.classList.add('hidden'); }
   });
 
   awayNameInput.addEventListener('click', function(e){ e.stopPropagation(); });
@@ -349,9 +407,10 @@
 
   function openLineupModal(squad){
     var html = '';
-    if(squad.attackers.length){ html += '<div class="section-label">ATTACKERS</div>' + lineupGroupHtml(squad.attackers, squad.lastSelected); }
-    if(squad.midcourt.length){ html += '<div class="section-label">MID COURT</div>' + lineupGroupHtml(squad.midcourt, squad.lastSelected); }
-    if(squad.defenders.length){ html += '<div class="section-label">DEFENDERS</div>' + lineupGroupHtml(squad.defenders, squad.lastSelected); }
+    if(squad.attackers.length){ html += '<div class="section-label attackers">ATTACKERS</div>' + lineupGroupHtml(squad.attackers, squad.lastSelected); }
+    if(squad.midcourt.length){ html += '<div class="section-label midcourt">MID COURT</div>' + lineupGroupHtml(squad.midcourt, squad.lastSelected); }
+    if(squad.defenders.length){ html += '<div class="section-label defenders">DEFENDERS</div>' + lineupGroupHtml(squad.defenders, squad.lastSelected); }
+    if(html === ''){ html = '<div class="empty-msg">This squad has no players yet. Add some via the settings icon.</div>'; }
     lineupList.innerHTML = html;
     lineupModalBackdrop.classList.remove('hidden');
   }
@@ -376,11 +435,9 @@
   var squadListView = document.getElementById('squadListView');
   var squadEditView = document.getElementById('squadEditView');
   var squadList = document.getElementById('squadList');
-  var trackToggle = document.getElementById('trackToggle');
   var editingSquadId = null;
 
   function openModal(){
-    trackToggle.checked = !!data.trackPlayers;
     showListView();
     squadModalBackdrop.classList.remove('hidden');
   }
@@ -438,15 +495,9 @@
 
   function setActiveSquad(squadId){
     if(data.activeSquadId === squadId){ return; }
-    var hasProgress = home > 0 || away > 0 || actionHistory.length > 0;
-    if(hasProgress && !confirm('Switch squads? This will reset the current match to 0-0.')){ return; }
     data.activeSquadId = squadId;
     saveData();
-    currentRoster = null;
-    home = 0; away = 0; actionHistory = [];
-    resetPlayerStats();
     renderSquadList();
-    render();
   }
 
   document.getElementById('addSquadBtn').addEventListener('click', function(){
@@ -475,7 +526,6 @@
     squad.midcourt = document.getElementById('editMidcourt').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
     squad.defenders = document.getElementById('editDefenders').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
     saveData();
-    if(squad.id === data.activeSquadId){ currentRoster = null; resetPlayerStats(); }
     showListView();
   });
 
@@ -484,13 +534,9 @@
     data.squads = data.squads.filter(function(s){ return s.id !== editingSquadId; });
     if(data.activeSquadId === editingSquadId){
       data.activeSquadId = data.squads.length > 0 ? data.squads[0].id : null;
-      currentRoster = null;
-      home = 0; away = 0; actionHistory = [];
-      resetPlayerStats();
     }
     saveData();
     showListView();
-    render();
   });
 
   document.getElementById('clearAllBtn').addEventListener('click', function(){
@@ -500,14 +546,7 @@
     currentRoster = null;
     home = 0; away = 0; actionHistory = [];
     playerStats = {};
-    trackToggle.checked = false;
     showListView();
-    render();
-  });
-
-  trackToggle.addEventListener('change', function(){
-    data.trackPlayers = trackToggle.checked;
-    saveData();
     render();
   });
 
