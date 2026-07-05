@@ -16,28 +16,67 @@
     -webkit-user-select:none; user-select:none; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:#000; }
   #app{ height:100dvh; display:flex; flex-direction:column; }
   .zone{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; cursor:pointer; }
+  .zone.detailed{ overflow-y:auto; justify-content:flex-start; padding-top:10px; cursor:default; }
   .zone:active{ filter:brightness(1.15); }
   .zone.home{ background:linear-gradient(180deg, var(--blue) 0%, var(--blue-dark) 100%); }
   .zone.away{ background:linear-gradient(180deg, var(--grey-light) 0%, var(--grey) 100%); }
   .logo{ max-width:45vmin; max-height:18vmin; margin-bottom:6px; pointer-events:none; }
+  .zone.detailed .logo{ max-width:28vmin; max-height:9vmin; }
   input.away-name{ background:transparent; border:none; border-bottom:2px solid rgba(255,255,255,0.4); color:#fff;
     font-size:clamp(14px,4vmin,22px); font-weight:700; letter-spacing:2px; text-align:center; text-transform:uppercase;
     padding:2px 6px; margin-bottom:4px; width:70vmin; max-width:320px; -webkit-user-select:text; user-select:text; }
   input.away-name:focus{ outline:none; border-bottom-color:var(--yellow); }
   .score{ font-size:clamp(56px,20vmin,140px); font-weight:800; color:var(--yellow); line-height:1; pointer-events:none; font-variant-numeric:tabular-nums; }
+  .zone.detailed .score{ font-size:clamp(36px,12vmin,80px); margin-bottom:4px; }
   .away .score{ color:#fff; }
   .hint{ position:absolute; bottom:10px; font-size:12px; color:rgba(255,255,255,0.4); pointer-events:none; letter-spacing:1px; }
+  .zone.detailed .hint{ position:static; margin-top:4px; margin-bottom:6px; }
   #controls{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:14px; background:#000; padding:10px 14px;
     border-top:2px solid var(--yellow); border-bottom:2px solid var(--yellow); }
   button{ font-family:inherit; font-weight:700; font-size:15px; letter-spacing:0.5px; padding:12px 20px; border-radius:10px; border:none; cursor:pointer; }
   #undoBtn{ background:var(--yellow); color:#000; }
   #undoBtn:disabled{ background:#444; color:#888; }
   #resetBtn{ background:transparent; color:#fff; border:2px solid #555; }
-  #vs{ color:#666; font-weight:700; font-size:13px; }
+  #settingsBtn{ background:transparent; color:#666; border:2px solid #333; font-size:18px; padding:8px 14px; }
   @media (orientation:landscape){
     #app{ flex-direction:row; }
     #controls{ flex-direction:column; border-top:none; border-bottom:none; border-left:2px solid var(--yellow); border-right:2px solid var(--yellow); padding:14px 10px; }
   }
+
+  .player-grid{ display:flex; flex-wrap:wrap; gap:8px; padding:6px 10px; width:100%; justify-content:center; }
+  .section-label{ font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.5); margin:8px 0 2px; pointer-events:none; }
+  .player-btn{ background:rgba(255,255,255,0.08); border:2px solid var(--yellow); border-radius:10px; padding:8px 12px; color:var(--yellow); font-weight:700; min-width:84px; text-align:center; -webkit-user-select:none; user-select:none; }
+  .player-btn:active{ background:rgba(255,255,255,0.2); }
+  .player-btn.defender{ border-color:#7fd6ff; color:#7fd6ff; }
+  .player-btn .cnt{ display:block; font-size:22px; margin-top:2px; }
+  .empty-msg{ color:rgba(255,255,255,0.5); font-size:13px; text-align:center; padding:20px; line-height:1.5; }
+
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px; }
+  .modal-backdrop.hidden{ display:none; }
+  .modal{ background:#111; border:2px solid var(--yellow); border-radius:14px; width:100%; max-width:420px; max-height:85vh; overflow-y:auto;
+    padding:18px; color:#fff; -webkit-user-select:auto; user-select:auto; touch-action:auto; }
+  .modal h2{ margin:0 0 12px; color:var(--yellow); font-size:18px; letter-spacing:1px; }
+  .modal h3{ margin:14px 0 6px; color:#fff; font-size:14px; }
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.06); border-radius:10px; padding:10px 12px; margin-bottom:14px; }
+  .switch{ position:relative; width:46px; height:26px; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider{ position:absolute; inset:0; background:#444; border-radius:26px; cursor:pointer; transition:0.2s; }
+  .slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:0.2s; }
+  input:checked + .slider{ background:var(--yellow); }
+  input:checked + .slider:before{ transform:translateX(20px); }
+  .squad-row{ display:flex; align-items:center; gap:8px; padding:10px 8px; border-radius:8px; margin-bottom:6px; background:rgba(255,255,255,0.05); }
+  .squad-row.active{ outline:2px solid var(--yellow); }
+  .squad-name-btn{ flex:1; background:none; border:none; color:#fff; font-weight:700; font-size:15px; text-align:left; padding:4px; }
+  .icon-btn{ background:none; border:none; color:#aaa; font-size:18px; padding:4px 8px; }
+  .modal textarea{ width:100%; min-height:90px; background:#1c1c1e; border:1px solid #444; border-radius:8px; color:#fff; padding:8px; font-size:14px; margin-bottom:10px; -webkit-user-select:text; user-select:text; }
+  .modal input[type=text]{ width:100%; background:#1c1c1e; border:1px solid #444; border-radius:8px; color:#fff; padding:8px; font-size:15px; margin-bottom:10px; -webkit-user-select:text; user-select:text; }
+  .modal-actions{ display:flex; gap:10px; margin-top:10px; }
+  .modal-actions button{ flex:1; padding:10px; }
+  .btn-primary{ background:var(--yellow); color:#000; }
+  .btn-secondary{ background:#333; color:#fff; }
+  .btn-danger{ background:transparent; color:#ff6b6b; border:2px solid #ff6b6b; width:100%; margin-top:16px; }
+  .add-squad-btn{ width:100%; background:transparent; border:2px dashed #555; color:#aaa; margin-top:6px; }
+  .close-x{ float:right; background:none; border:none; color:#aaa; font-size:20px; }
 </style>
 </head>
 <body>
@@ -45,57 +84,349 @@
   <div class="zone home" id="homeZone">
     <img src="/logo.png" class="logo" alt="Chorley Inferno">
     <div class="score" id="homeScore">0</div>
-    <div class="hint">TAP ANYWHERE TO SCORE</div>
+    <div class="hint" id="homeHint">TAP ANYWHERE TO SCORE</div>
+    <div id="playerArea" style="display:none; width:100%;"></div>
   </div>
+
   <div id="controls">
     <button id="undoBtn" disabled>UNDO</button>
-    <div id="vs">VS</div>
+    <button id="settingsBtn" title="Squad settings">&#9881;</button>
     <button id="resetBtn">NEW MATCH</button>
   </div>
+
   <div class="zone away" id="awayZone">
     <input class="away-name" id="awayName" value="OPPONENT" maxlength="20">
     <div class="score" id="awayScore">0</div>
     <div class="hint">TAP ANYWHERE TO SCORE</div>
   </div>
 </div>
+
+<div class="modal-backdrop hidden" id="squadModalBackdrop">
+  <div class="modal">
+    <button class="close-x" id="closeModalBtn">&times;</button>
+    <h2>Squads</h2>
+
+    <div class="toggle-row">
+      <span>Track Players</span>
+      <label class="switch">
+        <input type="checkbox" id="trackToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div id="squadListView">
+      <div id="squadList"></div>
+      <button class="add-squad-btn" id="addSquadBtn">+ Add Squad</button>
+      <button class="btn-danger" id="clearAllBtn">Clear All Data</button>
+    </div>
+
+    <div id="squadEditView" style="display:none;">
+      <h3>Squad Name</h3>
+      <input type="text" id="editSquadName" maxlength="30">
+      <h3>Attackers (one name per line)</h3>
+      <textarea id="editAttackers" placeholder="Chloe&#10;Amy&#10;Jess"></textarea>
+      <h3>Defenders (one name per line, optional)</h3>
+      <textarea id="editDefenders" placeholder="Mia&#10;Ella"></textarea>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="backToListBtn">Back</button>
+        <button class="btn-primary" id="saveSquadBtn">Save</button>
+      </div>
+      <button class="btn-danger" id="deleteSquadBtn">Delete This Squad</button>
+    </div>
+  </div>
+</div>
+
 <script>
   var home = 0, away = 0;
   var actionHistory = [];
+  var playerStats = {};
+
+  var STORAGE_KEY = 'infernoData';
+  var data = loadData();
+
   var homeScoreEl = document.getElementById('homeScore');
   var awayScoreEl = document.getElementById('awayScore');
   var undoBtn = document.getElementById('undoBtn');
   var awayNameInput = document.getElementById('awayName');
+  var homeZone = document.getElementById('homeZone');
+  var homeHint = document.getElementById('homeHint');
+  var playerArea = document.getElementById('playerArea');
+
+  function loadData(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){ return JSON.parse(raw); }
+    }catch(e){}
+    return { squads: [], activeSquadId: null, trackPlayers: false };
+  }
+  function saveData(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+  }
+  function getActiveSquad(){
+    var i;
+    for(i=0;i<data.squads.length;i++){
+      if(data.squads[i].id === data.activeSquadId){ return data.squads[i]; }
+    }
+    return null;
+  }
+  function resetPlayerStats(){
+    playerStats = {};
+    var squad = getActiveSquad();
+    if(!squad){ return; }
+    var i;
+    for(i=0;i<squad.attackers.length;i++){ playerStats[squad.attackers[i]] = { count:0, type:'attacker' }; }
+    for(i=0;i<squad.defenders.length;i++){ playerStats[squad.defenders[i]] = { count:0, type:'defender' }; }
+  }
+
   function render(){
     homeScoreEl.textContent = home;
     awayScoreEl.textContent = away;
     undoBtn.disabled = actionHistory.length === 0;
+    renderHomeZone();
   }
+
+  function renderHomeZone(){
+    var squad = getActiveSquad();
+    if(data.trackPlayers && squad){
+      homeZone.classList.add('detailed');
+      homeHint.style.display = 'none';
+      playerArea.style.display = 'block';
+      var html = '';
+      if(squad.attackers.length === 0 && squad.defenders.length === 0){
+        html = '<div class="empty-msg">No players saved for ' + escapeHtml(squad.name) + ' yet.<br>Tap the settings icon below to add attackers.</div>';
+      } else {
+        if(squad.attackers.length > 0){
+          html += '<div class="section-label">ATTACKERS</div><div class="player-grid">';
+          squad.attackers.forEach(function(name){
+            var c = playerStats[name] ? playerStats[name].count : 0;
+            html += '<div class="player-btn" data-player="' + escapeHtml(name) + '" data-type="attacker">' + escapeHtml(name) + '<span class="cnt">' + c + '</span></div>';
+          });
+          html += '</div>';
+        }
+        if(squad.defenders.length > 0){
+          html += '<div class="section-label">DEFENDERS (interceptions)</div><div class="player-grid">';
+          squad.defenders.forEach(function(name){
+            var c = playerStats[name] ? playerStats[name].count : 0;
+            html += '<div class="player-btn defender" data-player="' + escapeHtml(name) + '" data-type="defender">' + escapeHtml(name) + '<span class="cnt">' + c + '</span></div>';
+          });
+          html += '</div>';
+        }
+      }
+      playerArea.innerHTML = html;
+    } else {
+      homeZone.classList.remove('detailed');
+      homeHint.style.display = '';
+      playerArea.style.display = 'none';
+      playerArea.innerHTML = '';
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
   function addPoint(team){
     if(team === 'home'){ home = home + 1; } else { away = away + 1; }
-    actionHistory.push(team);
+    actionHistory.push({ type: team });
     render();
   }
-  document.getElementById('homeZone').addEventListener('click', function(){ addPoint('home'); });
+
+  function addPlayerEvent(name, type){
+    if(!playerStats[name]){ playerStats[name] = { count:0, type:type }; }
+    playerStats[name].count = playerStats[name].count + 1;
+    if(type === 'attacker'){ home = home + 1; }
+    actionHistory.push({ type:'player', name:name, playerType:type });
+    render();
+  }
+
+  homeZone.addEventListener('click', function(e){
+    if(data.trackPlayers){
+      var target = e.target.closest ? e.target.closest('.player-btn') : null;
+      if(target){
+        addPlayerEvent(target.getAttribute('data-player'), target.getAttribute('data-type'));
+      }
+      return;
+    }
+    addPoint('home');
+  });
+
   document.getElementById('awayZone').addEventListener('click', function(e){
     if(e.target === awayNameInput){ return; }
     addPoint('away');
   });
+
   undoBtn.addEventListener('click', function(e){
     e.stopPropagation();
     var last = actionHistory.pop();
-    if(last === 'home'){ home = Math.max(0, home - 1); }
-    else if(last === 'away'){ away = Math.max(0, away - 1); }
+    if(!last){ return; }
+    if(last.type === 'home'){ home = Math.max(0, home - 1); }
+    else if(last.type === 'away'){ away = Math.max(0, away - 1); }
+    else if(last.type === 'player'){
+      if(playerStats[last.name]){ playerStats[last.name].count = Math.max(0, playerStats[last.name].count - 1); }
+      if(last.playerType === 'attacker'){ home = Math.max(0, home - 1); }
+    }
     render();
   });
+
   document.getElementById('resetBtn').addEventListener('click', function(e){
     e.stopPropagation();
     if(confirm('Start a new match? This will reset the score to 0-0.')){
       home = 0; away = 0; actionHistory = [];
       awayNameInput.value = 'OPPONENT';
+      resetPlayerStats();
       render();
     }
   });
+
   awayNameInput.addEventListener('click', function(e){ e.stopPropagation(); });
+
+  /* ---------- Squad settings modal ---------- */
+  var squadModalBackdrop = document.getElementById('squadModalBackdrop');
+  var squadListView = document.getElementById('squadListView');
+  var squadEditView = document.getElementById('squadEditView');
+  var squadList = document.getElementById('squadList');
+  var trackToggle = document.getElementById('trackToggle');
+  var editingSquadId = null;
+
+  function openModal(){
+    trackToggle.checked = !!data.trackPlayers;
+    showListView();
+    squadModalBackdrop.classList.remove('hidden');
+  }
+  function closeModal(){
+    squadModalBackdrop.classList.add('hidden');
+    render();
+  }
+  function showListView(){
+    editingSquadId = null;
+    squadEditView.style.display = 'none';
+    squadListView.style.display = 'block';
+    renderSquadList();
+  }
+  function showEditView(squadId){
+    editingSquadId = squadId;
+    var squad = null;
+    var i;
+    for(i=0;i<data.squads.length;i++){ if(data.squads[i].id === squadId){ squad = data.squads[i]; } }
+    if(!squad){ return; }
+    document.getElementById('editSquadName').value = squad.name;
+    document.getElementById('editAttackers').value = squad.attackers.join('\n');
+    document.getElementById('editDefenders').value = squad.defenders.join('\n');
+    squadListView.style.display = 'none';
+    squadEditView.style.display = 'block';
+  }
+
+  function renderSquadList(){
+    var html = '';
+    if(data.squads.length === 0){
+      html = '<div class="empty-msg">No squads yet. Add one below.</div>';
+    }
+    data.squads.forEach(function(squad){
+      var activeClass = squad.id === data.activeSquadId ? ' active' : '';
+      html += '<div class="squad-row' + activeClass + '">' +
+        '<button class="squad-name-btn" data-select="' + squad.id + '">' + escapeHtml(squad.name) + '</button>' +
+        '<button class="icon-btn" data-edit="' + squad.id + '">&#9998;</button>' +
+        '</div>';
+    });
+    squadList.innerHTML = html;
+
+    var selectBtns = squadList.querySelectorAll('[data-select]');
+    selectBtns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        setActiveSquad(btn.getAttribute('data-select'));
+      });
+    });
+    var editBtns = squadList.querySelectorAll('[data-edit]');
+    editBtns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        showEditView(btn.getAttribute('data-edit'));
+      });
+    });
+  }
+
+  function setActiveSquad(squadId){
+    if(data.activeSquadId === squadId){ return; }
+    var hasProgress = home > 0 || away > 0 || actionHistory.length > 0;
+    if(hasProgress && !confirm('Switch squads? This will reset the current match to 0-0.')){ return; }
+    data.activeSquadId = squadId;
+    saveData();
+    home = 0; away = 0; actionHistory = [];
+    resetPlayerStats();
+    renderSquadList();
+    render();
+  }
+
+  document.getElementById('addSquadBtn').addEventListener('click', function(){
+    var name = prompt('Squad name (e.g. Volcanos U12):');
+    if(!name){ return; }
+    name = name.trim();
+    if(!name){ return; }
+    var id = 's' + Date.now();
+    data.squads.push({ id:id, name:name, attackers:[], defenders:[] });
+    if(!data.activeSquadId){ data.activeSquadId = id; }
+    saveData();
+    showEditView(id);
+  });
+
+  document.getElementById('backToListBtn').addEventListener('click', function(){
+    showListView();
+  });
+
+  document.getElementById('saveSquadBtn').addEventListener('click', function(){
+    var squad = null, i;
+    for(i=0;i<data.squads.length;i++){ if(data.squads[i].id === editingSquadId){ squad = data.squads[i]; } }
+    if(!squad){ return; }
+    var newName = document.getElementById('editSquadName').value.trim();
+    squad.name = newName || squad.name;
+    squad.attackers = document.getElementById('editAttackers').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    squad.defenders = document.getElementById('editDefenders').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    saveData();
+    if(squad.id === data.activeSquadId){ resetPlayerStats(); }
+    showListView();
+  });
+
+  document.getElementById('deleteSquadBtn').addEventListener('click', function(){
+    if(!confirm('Delete this squad? This cannot be undone.')){ return; }
+    data.squads = data.squads.filter(function(s){ return s.id !== editingSquadId; });
+    if(data.activeSquadId === editingSquadId){
+      data.activeSquadId = data.squads.length > 0 ? data.squads[0].id : null;
+      home = 0; away = 0; actionHistory = [];
+      resetPlayerStats();
+    }
+    saveData();
+    showListView();
+    render();
+  });
+
+  document.getElementById('clearAllBtn').addEventListener('click', function(){
+    if(!confirm('Clear ALL saved squads and settings? This cannot be undone.')){ return; }
+    data = { squads: [], activeSquadId: null, trackPlayers: false };
+    saveData();
+    home = 0; away = 0; actionHistory = [];
+    playerStats = {};
+    trackToggle.checked = false;
+    showListView();
+    render();
+  });
+
+  trackToggle.addEventListener('change', function(){
+    data.trackPlayers = trackToggle.checked;
+    saveData();
+    render();
+  });
+
+  document.getElementById('settingsBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    openModal();
+  });
+  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+  squadModalBackdrop.addEventListener('click', function(e){
+    if(e.target === squadModalBackdrop){ closeModal(); }
+  });
+
+  resetPlayerStats();
   render();
 </script>
 </body>
