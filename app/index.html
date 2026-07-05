@@ -10,27 +10,31 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.json">
 <style>
-  :root{ --blue:#001689; --blue-dark:#000d52; --yellow:#EBCD33; --grey:#1c1c1e; --grey-light:#2c2c2e; }
+  :root{ --blue:#001689; --blue-dark:#000d52; --yellow:#EBCD33; --grey:#1c1c1e; --grey-light:#2c2c2e; --green:#8CE99A; }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{ margin:0; padding:0; height:100%; overscroll-behavior:none; touch-action:manipulation;
     -webkit-user-select:none; user-select:none; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:#000; }
   #app{ height:100dvh; display:flex; flex-direction:column; }
+  #app.detailed-layout .zone.home{ flex:2.2 1 0; }
+  #app.detailed-layout .zone.away{ flex:1 1 0; }
   .zone{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; cursor:pointer; }
-  .zone.detailed{ overflow-y:auto; justify-content:flex-start; padding-top:10px; cursor:default; }
+  .zone.detailed{ justify-content:flex-start; align-items:stretch; cursor:default; }
   .zone:active{ filter:brightness(1.15); }
   .zone.home{ background:linear-gradient(180deg, var(--blue) 0%, var(--blue-dark) 100%); }
   .zone.away{ background:linear-gradient(180deg, var(--grey-light) 0%, var(--grey) 100%); }
+  .home-sticky{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; padding-top:6px; }
+  .player-scroll{ flex:1 1 auto; overflow-y:auto; width:100%; -webkit-overflow-scrolling:touch; }
   .logo{ max-width:45vmin; max-height:18vmin; margin-bottom:6px; pointer-events:none; }
-  .zone.detailed .logo{ max-width:28vmin; max-height:9vmin; }
+  .zone.detailed .logo{ max-width:24vmin; max-height:8vmin; }
   input.away-name{ background:transparent; border:none; border-bottom:2px solid rgba(255,255,255,0.4); color:#fff;
     font-size:clamp(14px,4vmin,22px); font-weight:700; letter-spacing:2px; text-align:center; text-transform:uppercase;
-    padding:2px 6px; margin-bottom:4px; width:70vmin; max-width:320px; -webkit-user-select:text; user-select:text; }
+    padding:2px 6px; margin-bottom:4px; width:90%; max-width:320px; -webkit-user-select:text; user-select:text; }
   input.away-name:focus{ outline:none; border-bottom-color:var(--yellow); }
   .score{ font-size:clamp(56px,20vmin,140px); font-weight:800; color:var(--yellow); line-height:1; pointer-events:none; font-variant-numeric:tabular-nums; }
-  .zone.detailed .score{ font-size:clamp(36px,12vmin,80px); margin-bottom:4px; }
+  .zone.detailed .score{ font-size:clamp(32px,10vmin,70px); margin-bottom:2px; }
   .away .score{ color:#fff; }
   .hint{ position:absolute; bottom:10px; font-size:12px; color:rgba(255,255,255,0.4); pointer-events:none; letter-spacing:1px; }
-  .zone.detailed .hint{ position:static; margin-top:4px; margin-bottom:6px; }
+  .zone.detailed .hint{ position:static; margin:2px 0 4px; }
   #controls{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:14px; background:#000; padding:10px 14px;
     border-top:2px solid var(--yellow); border-bottom:2px solid var(--yellow); }
   button{ font-family:inherit; font-weight:700; font-size:15px; letter-spacing:0.5px; padding:12px 20px; border-radius:10px; border:none; cursor:pointer; }
@@ -44,11 +48,12 @@
   }
 
   .player-grid{ display:flex; flex-wrap:wrap; gap:8px; padding:6px 10px; width:100%; justify-content:center; }
-  .section-label{ font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.5); margin:8px 0 2px; pointer-events:none; }
-  .player-btn{ background:rgba(255,255,255,0.08); border:2px solid var(--yellow); border-radius:10px; padding:8px 12px; color:var(--yellow); font-weight:700; min-width:84px; text-align:center; -webkit-user-select:none; user-select:none; }
+  .section-label{ font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.5); margin:8px 0 2px; pointer-events:none; text-align:center; width:100%; }
+  .player-btn{ background:rgba(255,255,255,0.08); border:2px solid var(--yellow); border-radius:10px; padding:8px 12px; color:var(--yellow); font-weight:700; min-width:78px; text-align:center; -webkit-user-select:none; user-select:none; }
   .player-btn:active{ background:rgba(255,255,255,0.2); }
   .player-btn.defender{ border-color:#7fd6ff; color:#7fd6ff; }
-  .player-btn .cnt{ display:block; font-size:22px; margin-top:2px; }
+  .player-btn.midcourt{ border-color:var(--green); color:var(--green); }
+  .player-btn .cnt{ display:block; font-size:20px; margin-top:2px; }
   .empty-msg{ color:rgba(255,255,255,0.5); font-size:13px; text-align:center; padding:20px; line-height:1.5; }
 
   .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px; }
@@ -68,7 +73,7 @@
   .squad-row.active{ outline:2px solid var(--yellow); }
   .squad-name-btn{ flex:1; background:none; border:none; color:#fff; font-weight:700; font-size:15px; text-align:left; padding:4px; }
   .icon-btn{ background:none; border:none; color:#aaa; font-size:18px; padding:4px 8px; }
-  .modal textarea{ width:100%; min-height:90px; background:#1c1c1e; border:1px solid #444; border-radius:8px; color:#fff; padding:8px; font-size:14px; margin-bottom:10px; -webkit-user-select:text; user-select:text; }
+  .modal textarea{ width:100%; min-height:70px; background:#1c1c1e; border:1px solid #444; border-radius:8px; color:#fff; padding:8px; font-size:14px; margin-bottom:10px; -webkit-user-select:text; user-select:text; }
   .modal input[type=text]{ width:100%; background:#1c1c1e; border:1px solid #444; border-radius:8px; color:#fff; padding:8px; font-size:15px; margin-bottom:10px; -webkit-user-select:text; user-select:text; }
   .modal-actions{ display:flex; gap:10px; margin-top:10px; }
   .modal-actions button{ flex:1; padding:10px; }
@@ -77,15 +82,19 @@
   .btn-danger{ background:transparent; color:#ff6b6b; border:2px solid #ff6b6b; width:100%; margin-top:16px; }
   .add-squad-btn{ width:100%; background:transparent; border:2px dashed #555; color:#aaa; margin-top:6px; }
   .close-x{ float:right; background:none; border:none; color:#aaa; font-size:20px; }
+  .lineup-row{ display:flex; align-items:center; gap:10px; padding:8px 6px; font-size:15px; }
+  .lineup-row input{ width:20px; height:20px; }
 </style>
 </head>
 <body>
 <div id="app">
   <div class="zone home" id="homeZone">
-    <img src="/logo.png" class="logo" alt="Chorley Inferno">
-    <div class="score" id="homeScore">0</div>
-    <div class="hint" id="homeHint">TAP ANYWHERE TO SCORE</div>
-    <div id="playerArea" style="display:none; width:100%;"></div>
+    <div class="home-sticky">
+      <img src="/logo.png" class="logo" alt="Chorley Inferno">
+      <div class="score" id="homeScore">0</div>
+      <div class="hint" id="homeHint">TAP ANYWHERE TO SCORE</div>
+    </div>
+    <div id="playerArea" class="player-scroll" style="display:none;"></div>
   </div>
 
   <div id="controls">
@@ -125,6 +134,8 @@
       <input type="text" id="editSquadName" maxlength="30">
       <h3>Attackers (one name per line)</h3>
       <textarea id="editAttackers" placeholder="Chloe&#10;Amy&#10;Jess"></textarea>
+      <h3>Mid Court (one name per line, optional)</h3>
+      <textarea id="editMidcourt" placeholder="Freya&#10;Poppy"></textarea>
       <h3>Defenders (one name per line, optional)</h3>
       <textarea id="editDefenders" placeholder="Mia&#10;Ella"></textarea>
       <div class="modal-actions">
@@ -136,10 +147,22 @@
   </div>
 </div>
 
+<div class="modal-backdrop hidden" id="lineupModalBackdrop">
+  <div class="modal">
+    <h2>Who's Playing?</h2>
+    <div id="lineupList"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="lineupCancelBtn">Cancel</button>
+      <button class="btn-primary" id="lineupStartBtn">Start Match</button>
+    </div>
+  </div>
+</div>
+
 <script>
   var home = 0, away = 0;
   var actionHistory = [];
   var playerStats = {};
+  var currentRoster = null;
 
   var STORAGE_KEY = 'infernoData';
   var data = loadData();
@@ -148,6 +171,7 @@
   var awayScoreEl = document.getElementById('awayScore');
   var undoBtn = document.getElementById('undoBtn');
   var awayNameInput = document.getElementById('awayName');
+  var appEl = document.getElementById('app');
   var homeZone = document.getElementById('homeZone');
   var homeHint = document.getElementById('homeHint');
   var playerArea = document.getElementById('playerArea');
@@ -155,7 +179,14 @@
   function loadData(){
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){ return JSON.parse(raw); }
+      if(raw){
+        var parsed = JSON.parse(raw);
+        parsed.squads.forEach(function(s){
+          if(!s.midcourt){ s.midcourt = []; }
+          if(!s.lastSelected){ s.lastSelected = null; }
+        });
+        return parsed;
+      }
     }catch(e){}
     return { squads: [], activeSquadId: null, trackPlayers: false };
   }
@@ -169,13 +200,17 @@
     }
     return null;
   }
+  function inRoster(name){
+    return currentRoster === null || currentRoster.indexOf(name) !== -1;
+  }
   function resetPlayerStats(){
     playerStats = {};
     var squad = getActiveSquad();
     if(!squad){ return; }
     var i;
-    for(i=0;i<squad.attackers.length;i++){ playerStats[squad.attackers[i]] = { count:0, type:'attacker' }; }
-    for(i=0;i<squad.defenders.length;i++){ playerStats[squad.defenders[i]] = { count:0, type:'defender' }; }
+    for(i=0;i<squad.attackers.length;i++){ if(inRoster(squad.attackers[i])){ playerStats[squad.attackers[i]] = { count:0, type:'attacker' }; } }
+    for(i=0;i<squad.midcourt.length;i++){ if(inRoster(squad.midcourt[i])){ playerStats[squad.midcourt[i]] = { count:0, type:'midcourt' }; } }
+    for(i=0;i<squad.defenders.length;i++){ if(inRoster(squad.defenders[i])){ playerStats[squad.defenders[i]] = { count:0, type:'defender' }; } }
   }
 
   function render(){
@@ -185,36 +220,39 @@
     renderHomeZone();
   }
 
+  function playerGroupHtml(names, type, label){
+    var visible = names.filter(inRoster);
+    if(visible.length === 0){ return ''; }
+    var html = '<div class="section-label">' + label + '</div><div class="player-grid">';
+    visible.forEach(function(name){
+      var c = playerStats[name] ? playerStats[name].count : 0;
+      var cls = type === 'defender' ? ' defender' : (type === 'midcourt' ? ' midcourt' : '');
+      html += '<div class="player-btn' + cls + '" data-player="' + escapeHtml(name) + '" data-type="' + type + '">' + escapeHtml(name) + '<span class="cnt">' + c + '</span></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
   function renderHomeZone(){
     var squad = getActiveSquad();
-    if(data.trackPlayers && squad){
-      homeZone.classList.add('detailed');
+    var detailed = data.trackPlayers && squad;
+    homeZone.classList.toggle('detailed', !!detailed);
+    appEl.classList.toggle('detailed-layout', !!detailed);
+    if(detailed){
       homeHint.style.display = 'none';
       playerArea.style.display = 'block';
-      var html = '';
-      if(squad.attackers.length === 0 && squad.defenders.length === 0){
-        html = '<div class="empty-msg">No players saved for ' + escapeHtml(squad.name) + ' yet.<br>Tap the settings icon below to add attackers.</div>';
+      var total = squad.attackers.length + squad.midcourt.length + squad.defenders.length;
+      if(total === 0){
+        playerArea.innerHTML = '<div class="empty-msg">No players saved for ' + escapeHtml(squad.name) + ' yet.<br>Tap the settings icon below to add attackers.</div>';
       } else {
-        if(squad.attackers.length > 0){
-          html += '<div class="section-label">ATTACKERS</div><div class="player-grid">';
-          squad.attackers.forEach(function(name){
-            var c = playerStats[name] ? playerStats[name].count : 0;
-            html += '<div class="player-btn" data-player="' + escapeHtml(name) + '" data-type="attacker">' + escapeHtml(name) + '<span class="cnt">' + c + '</span></div>';
-          });
-          html += '</div>';
-        }
-        if(squad.defenders.length > 0){
-          html += '<div class="section-label">DEFENDERS (interceptions)</div><div class="player-grid">';
-          squad.defenders.forEach(function(name){
-            var c = playerStats[name] ? playerStats[name].count : 0;
-            html += '<div class="player-btn defender" data-player="' + escapeHtml(name) + '" data-type="defender">' + escapeHtml(name) + '<span class="cnt">' + c + '</span></div>';
-          });
-          html += '</div>';
-        }
+        var html = '';
+        html += playerGroupHtml(squad.attackers, 'attacker', 'ATTACKERS');
+        html += playerGroupHtml(squad.midcourt, 'midcourt', 'MID COURT (interceptions)');
+        html += playerGroupHtml(squad.defenders, 'defender', 'DEFENDERS (interceptions)');
+        if(html === ''){ html = '<div class="empty-msg">No one selected for today.<br>Tap NEW MATCH to pick who\'s playing.</div>'; }
+        playerArea.innerHTML = html;
       }
-      playerArea.innerHTML = html;
     } else {
-      homeZone.classList.remove('detailed');
       homeHint.style.display = '';
       playerArea.style.display = 'none';
       playerArea.innerHTML = '';
@@ -270,17 +308,65 @@
     render();
   });
 
+  function startNewMatch(roster){
+    currentRoster = roster;
+    home = 0; away = 0; actionHistory = [];
+    awayNameInput.value = 'OPPONENT';
+    resetPlayerStats();
+    render();
+  }
+
   document.getElementById('resetBtn').addEventListener('click', function(e){
     e.stopPropagation();
-    if(confirm('Start a new match? This will reset the score to 0-0.')){
-      home = 0; away = 0; actionHistory = [];
-      awayNameInput.value = 'OPPONENT';
-      resetPlayerStats();
-      render();
+    var squad = getActiveSquad();
+    var totalPlayers = squad ? (squad.attackers.length + squad.midcourt.length + squad.defenders.length) : 0;
+    if(data.trackPlayers && squad && totalPlayers > 0){
+      openLineupModal(squad);
+    } else {
+      if(confirm('Start a new match? This will reset the score to 0-0.')){
+        startNewMatch(null);
+      }
     }
   });
 
   awayNameInput.addEventListener('click', function(e){ e.stopPropagation(); });
+
+  /* ---------- Lineup ("who's playing") modal ---------- */
+  var lineupModalBackdrop = document.getElementById('lineupModalBackdrop');
+  var lineupList = document.getElementById('lineupList');
+
+  function lineupGroupHtml(names, defaultSelected){
+    var html = '';
+    names.forEach(function(name){
+      var checked = defaultSelected === null ? true : defaultSelected.indexOf(name) !== -1;
+      html += '<label class="lineup-row"><input type="checkbox" data-name="' + escapeHtml(name) + '"' + (checked ? ' checked' : '') + '>' + escapeHtml(name) + '</label>';
+    });
+    return html;
+  }
+
+  function openLineupModal(squad){
+    var html = '';
+    if(squad.attackers.length){ html += '<div class="section-label">ATTACKERS</div>' + lineupGroupHtml(squad.attackers, squad.lastSelected); }
+    if(squad.midcourt.length){ html += '<div class="section-label">MID COURT</div>' + lineupGroupHtml(squad.midcourt, squad.lastSelected); }
+    if(squad.defenders.length){ html += '<div class="section-label">DEFENDERS</div>' + lineupGroupHtml(squad.defenders, squad.lastSelected); }
+    lineupList.innerHTML = html;
+    lineupModalBackdrop.classList.remove('hidden');
+  }
+
+  document.getElementById('lineupCancelBtn').addEventListener('click', function(){
+    lineupModalBackdrop.classList.add('hidden');
+  });
+  document.getElementById('lineupStartBtn').addEventListener('click', function(){
+    var checked = lineupList.querySelectorAll('input[type=checkbox]:checked');
+    var roster = Array.from(checked).map(function(cb){ return cb.getAttribute('data-name'); });
+    var squad = getActiveSquad();
+    if(squad){ squad.lastSelected = roster; saveData(); }
+    lineupModalBackdrop.classList.add('hidden');
+    startNewMatch(roster);
+  });
+  lineupModalBackdrop.addEventListener('click', function(e){
+    if(e.target === lineupModalBackdrop){ lineupModalBackdrop.classList.add('hidden'); }
+  });
 
   /* ---------- Squad settings modal ---------- */
   var squadModalBackdrop = document.getElementById('squadModalBackdrop');
@@ -313,6 +399,7 @@
     if(!squad){ return; }
     document.getElementById('editSquadName').value = squad.name;
     document.getElementById('editAttackers').value = squad.attackers.join('\n');
+    document.getElementById('editMidcourt').value = squad.midcourt.join('\n');
     document.getElementById('editDefenders').value = squad.defenders.join('\n');
     squadListView.style.display = 'none';
     squadEditView.style.display = 'block';
@@ -352,6 +439,7 @@
     if(hasProgress && !confirm('Switch squads? This will reset the current match to 0-0.')){ return; }
     data.activeSquadId = squadId;
     saveData();
+    currentRoster = null;
     home = 0; away = 0; actionHistory = [];
     resetPlayerStats();
     renderSquadList();
@@ -364,7 +452,7 @@
     name = name.trim();
     if(!name){ return; }
     var id = 's' + Date.now();
-    data.squads.push({ id:id, name:name, attackers:[], defenders:[] });
+    data.squads.push({ id:id, name:name, attackers:[], midcourt:[], defenders:[], lastSelected:null });
     if(!data.activeSquadId){ data.activeSquadId = id; }
     saveData();
     showEditView(id);
@@ -381,9 +469,10 @@
     var newName = document.getElementById('editSquadName').value.trim();
     squad.name = newName || squad.name;
     squad.attackers = document.getElementById('editAttackers').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    squad.midcourt = document.getElementById('editMidcourt').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
     squad.defenders = document.getElementById('editDefenders').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
     saveData();
-    if(squad.id === data.activeSquadId){ resetPlayerStats(); }
+    if(squad.id === data.activeSquadId){ currentRoster = null; resetPlayerStats(); }
     showListView();
   });
 
@@ -392,6 +481,7 @@
     data.squads = data.squads.filter(function(s){ return s.id !== editingSquadId; });
     if(data.activeSquadId === editingSquadId){
       data.activeSquadId = data.squads.length > 0 ? data.squads[0].id : null;
+      currentRoster = null;
       home = 0; away = 0; actionHistory = [];
       resetPlayerStats();
     }
@@ -404,6 +494,7 @@
     if(!confirm('Clear ALL saved squads and settings? This cannot be undone.')){ return; }
     data = { squads: [], activeSquadId: null, trackPlayers: false };
     saveData();
+    currentRoster = null;
     home = 0; away = 0; actionHistory = [];
     playerStats = {};
     trackToggle.checked = false;
@@ -425,6 +516,21 @@
   squadModalBackdrop.addEventListener('click', function(e){
     if(e.target === squadModalBackdrop){ closeModal(); }
   });
+
+  /* ---------- Rotation glitch smoothing ---------- */
+  var rotateOverlay = document.createElement('div');
+  rotateOverlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;opacity:0;pointer-events:none;transition:opacity 0.15s;';
+  document.body.appendChild(rotateOverlay);
+  var rotateTimeout;
+  function handleOrientationChange(){
+    rotateOverlay.style.opacity = '1';
+    clearTimeout(rotateTimeout);
+    rotateTimeout = setTimeout(function(){
+      rotateOverlay.style.opacity = '0';
+    }, 260);
+  }
+  window.addEventListener('orientationchange', handleOrientationChange);
+  window.addEventListener('resize', handleOrientationChange);
 
   resetPlayerStats();
   render();
