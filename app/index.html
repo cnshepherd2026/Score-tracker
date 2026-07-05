@@ -50,13 +50,13 @@
     background:linear-gradient(180deg, var(--grey-light) 0%, var(--grey) 100%);
   }
   .logo{
-    max-width:60vw;
-    max-height:16vh;
+    max-width:45vmin;
+    max-height:18vmin;
     margin-bottom:6px;
     pointer-events:none;
   }
   .label{
-    font-size:clamp(14px,4vw,22px);
+    font-size:clamp(14px,4vmin,22px);
     font-weight:700;
     letter-spacing:2px;
     color:var(--yellow);
@@ -69,20 +69,20 @@
     border:none;
     border-bottom:2px solid rgba(255,255,255,0.4);
     color:#fff;
-    font-size:clamp(14px,4vw,22px);
+    font-size:clamp(14px,4vmin,22px);
     font-weight:700;
     letter-spacing:2px;
     text-align:center;
     text-transform:uppercase;
     padding:2px 6px;
     margin-bottom:4px;
-    width:70vw;
+    width:70vmin;
     max-width:320px;
     -webkit-user-select:text; user-select:text;
   }
   input.away-name:focus{ outline:none; border-bottom-color:var(--yellow); }
   .score{
-    font-size:clamp(72px,26vw,150px);
+    font-size:clamp(56px,20vmin,140px);
     font-weight:800;
     color:var(--yellow);
     line-height:1;
@@ -136,6 +136,19 @@
     color:#666;
     font-weight:700;
     font-size:13px;
+  }
+
+  /* Phone rotated sideways: put teams side-by-side instead of top/bottom */
+  @media (orientation:landscape){
+    #app{ flex-direction:row; }
+    #controls{
+      flex-direction:column;
+      border-top:none;
+      border-bottom:none;
+      border-left:2px solid var(--yellow);
+      border-right:2px solid var(--yellow);
+      padding:14px 10px;
+    }
   }
 </style>
 </head>
@@ -197,18 +210,4 @@
     render();
   });
 
-  document.getElementById('resetBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    if(confirm('Start a new match? This will reset the score to 0-0.')){
-      home = 0; away = 0; history.length = 0;
-      awayNameInput.value = 'OPPONENT';
-      render();
-    }
-  });
-
-  awayNameInput.addEventListener('click', (e) => e.stopPropagation());
-
-  render();
-</script>
-</body>
-</html>
+  document.getElementById
