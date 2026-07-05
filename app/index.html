@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.json">
 <style>
-  :root{ --blue:#001689; --blue-dark:#000d52; --yellow:#EBCD33; --grey:#1c1c1e; --grey-light:#2c2c2e; --green:#8CE99A; --cyan:#7fd6ff; }
+  :root{ --blue:#001689; --blue-dark:#000d52; --yellow:#EBCD33; --grey:#1c1c1e; --grey-light:#2c2c2e; --cyan:#7fd6ff; }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{ margin:0; padding:0; height:100%; overscroll-behavior:none; touch-action:manipulation;
     -webkit-user-select:none; user-select:none; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:#000; }
@@ -39,29 +39,29 @@
   .away .score{ color:#fff; }
   .hint{ position:absolute; bottom:10px; font-size:12px; color:rgba(255,255,255,0.4); pointer-events:none; letter-spacing:1px; }
   .zone.detailed .hint{ position:static; margin:2px 0 4px; }
-  #controls{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:14px; background:#000; padding:10px 14px;
+  #controls{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:10px; background:#000; padding:10px 12px;
     border-top:2px solid var(--yellow); border-bottom:2px solid var(--yellow); }
   button{ font-family:inherit; font-weight:700; font-size:15px; letter-spacing:0.5px; padding:12px 20px; border-radius:10px; border:none; cursor:pointer; }
   #undoBtn{ background:var(--yellow); color:#000; }
   #undoBtn:disabled{ background:#444; color:#888; }
   #resetBtn{ background:transparent; color:#fff; border:2px solid #555; }
-  #settingsBtn{ background:transparent; color:#666; border:2px solid #333; font-size:18px; padding:8px 14px; }
+  #settingsBtn, #positionsBtn{ background:transparent; color:#666; border:2px solid #333; font-size:18px; padding:8px 12px; }
+  #positionsBtn:disabled{ color:#333; border-color:#222; cursor:default; }
   @media (orientation:landscape){
     #app{ flex-direction:row; }
-    #controls{ flex-direction:column; border-top:none; border-bottom:none; border-left:2px solid var(--yellow); border-right:2px solid var(--yellow); padding:14px 10px; }
+    #controls{ flex-direction:column; border-top:none; border-bottom:none; border-left:2px solid var(--yellow); border-right:2px solid var(--yellow); padding:14px 8px; gap:8px; }
   }
 
   .player-grid{ display:flex; flex-wrap:wrap; gap:6px; padding:4px 8px; width:100%; justify-content:center; }
   .section-label{ font-size:12px; font-weight:800; letter-spacing:1.2px; margin:6px 0 3px; pointer-events:none; text-align:center; width:100%;
     padding-bottom:3px; border-bottom:1px solid currentColor; opacity:0.95; }
   .section-label.attackers{ color:var(--yellow); }
-  .section-label.midcourt{ color:var(--green); }
   .section-label.defenders{ color:var(--cyan); }
   .player-btn{ background:rgba(255,255,255,0.08); border:2px solid var(--yellow); border-radius:8px; padding:6px 10px; color:var(--yellow); font-weight:700; min-width:70px; text-align:center; font-size:14px; -webkit-user-select:none; user-select:none; }
   .player-btn:active{ background:rgba(255,255,255,0.2); }
   .player-btn.defender{ border-color:var(--cyan); color:var(--cyan); }
-  .player-btn.midcourt{ border-color:var(--green); color:var(--green); }
   .player-btn .cnt{ display:block; font-size:17px; margin-top:1px; }
+  .player-btn .sub-cnt{ display:block; font-size:10px; margin-top:1px; opacity:0.7; font-weight:600; }
   .empty-msg{ color:rgba(255,255,255,0.5); font-size:13px; text-align:center; padding:20px; line-height:1.5; }
 
   .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;
@@ -91,6 +91,9 @@
   .lineup-row{ display:flex; align-items:center; gap:10px; padding:8px 6px; font-size:15px; }
   .lineup-row input{ width:20px; height:20px; }
   .version-tag{ text-align:center; color:#555; font-size:11px; margin-top:16px; letter-spacing:1px; }
+  .pos-toggle-btn{ background:#222; color:#aaa; border:2px solid #444; border-radius:8px; padding:6px 10px; font-size:12px; margin-left:6px; }
+  .pos-toggle-btn.active-attacker{ background:var(--yellow); color:#000; border-color:var(--yellow); }
+  .pos-toggle-btn.active-interception{ background:var(--cyan); color:#000; border-color:var(--cyan); }
 </style>
 </head>
 <body>
@@ -107,6 +110,7 @@
   <div id="controls">
     <button id="undoBtn" disabled>UNDO</button>
     <button id="settingsBtn" title="Squads">&#9881;</button>
+    <button id="positionsBtn" title="Positions" disabled>&#8646;</button>
     <button id="resetBtn">NEW MATCH</button>
   </div>
 
@@ -149,10 +153,8 @@
       <input type="text" id="editSquadName" maxlength="30">
       <h3>Attackers (one name per line)</h3>
       <textarea id="editAttackers" placeholder="Chloe&#10;Amy&#10;Jess"></textarea>
-      <h3>Mid Court (one name per line, optional)</h3>
-      <textarea id="editMidcourt" placeholder="Freya&#10;Poppy"></textarea>
-      <h3>Defenders (one name per line, optional)</h3>
-      <textarea id="editDefenders" placeholder="Mia&#10;Ella"></textarea>
+      <h3>Interceptions - Mid Court &amp; Defenders (one name per line)</h3>
+      <textarea id="editInterceptions" placeholder="Freya&#10;Mia&#10;Ella"></textarea>
       <div class="modal-actions">
         <button class="btn-secondary" id="backToListBtn">Back</button>
         <button class="btn-primary" id="saveSquadBtn">Save</button>
@@ -173,13 +175,22 @@
   </div>
 </div>
 
+<div class="modal-backdrop hidden" id="positionsModalBackdrop">
+  <div class="modal">
+    <h2>Playing Positions</h2>
+    <div id="positionsList"></div>
+    <div class="modal-actions"><button class="btn-primary" id="positionsDoneBtn" style="width:100%;">Done</button></div>
+  </div>
+</div>
+
 <script>
-  var APP_VERSION = '1.6.1';
+  var APP_VERSION = '1.7.0';
 
   var home = 0, away = 0;
   var actionHistory = [];
   var playerStats = {};
   var currentRoster = null;
+  var matchPositions = {};
 
   var STORAGE_KEY = 'infernoData';
   var data = loadData();
@@ -192,6 +203,7 @@
   var homeZone = document.getElementById('homeZone');
   var homeHint = document.getElementById('homeHint');
   var playerArea = document.getElementById('playerArea');
+  var posBtn = document.getElementById('positionsBtn');
 
   document.getElementById('versionTag').textContent = 'Version ' + APP_VERSION;
 
@@ -201,7 +213,11 @@
       if(raw){
         var parsed = JSON.parse(raw);
         parsed.squads.forEach(function(s){
-          if(!s.midcourt){ s.midcourt = []; }
+          if(!s.interceptions){
+            s.interceptions = (s.midcourt || []).concat(s.defenders || []);
+          }
+          delete s.midcourt;
+          delete s.defenders;
           if(!s.lastSelected){ s.lastSelected = null; }
         });
         return parsed;
@@ -222,14 +238,18 @@
   function inRoster(name){
     return currentRoster === null || currentRoster.indexOf(name) !== -1;
   }
+  function currentPosition(name){
+    return matchPositions[name] || 'attacker';
+  }
   function resetPlayerStats(){
     playerStats = {};
     var squad = getActiveSquad();
     if(!squad){ return; }
-    var i;
-    for(i=0;i<squad.attackers.length;i++){ if(inRoster(squad.attackers[i])){ playerStats[squad.attackers[i]] = { count:0, type:'attacker' }; } }
-    for(i=0;i<squad.midcourt.length;i++){ if(inRoster(squad.midcourt[i])){ playerStats[squad.midcourt[i]] = { count:0, type:'midcourt' }; } }
-    for(i=0;i<squad.defenders.length;i++){ if(inRoster(squad.defenders[i])){ playerStats[squad.defenders[i]] = { count:0, type:'defender' }; } }
+    var allNames = squad.attackers.concat(squad.interceptions);
+    var names = currentRoster === null ? allNames : currentRoster;
+    names.forEach(function(name){
+      if(inRoster(name)){ playerStats[name] = { goals:0, interceptions:0 }; }
+    });
   }
 
   function render(){
@@ -240,13 +260,18 @@
   }
 
   function playerGroupHtml(names, type, label, labelClass){
-    var visible = names.filter(inRoster);
-    if(visible.length === 0){ return ''; }
+    if(names.length === 0){ return ''; }
     var html = '<div class="section-label ' + labelClass + '">' + label + '</div><div class="player-grid">';
-    visible.forEach(function(name){
-      var c = playerStats[name] ? playerStats[name].count : 0;
-      var cls = type === 'defender' ? ' defender' : (type === 'midcourt' ? ' midcourt' : '');
-      html += '<div class="player-btn' + cls + '" data-player="' + escapeHtml(name) + '" data-type="' + type + '">' + escapeHtml(name) + '<span class="cnt">' + c + '</span></div>';
+    names.forEach(function(name){
+      var stats = playerStats[name] || { goals:0, interceptions:0 };
+      var main = type === 'attacker' ? stats.goals : stats.interceptions;
+      var other = type === 'attacker' ? stats.interceptions : stats.goals;
+      var otherLabel = type === 'attacker' ? 'INT' : 'GOALS';
+      var cls = type === 'interception' ? ' defender' : '';
+      html += '<div class="player-btn' + cls + '" data-player="' + escapeHtml(name) + '" data-type="' + type + '">' + escapeHtml(name) +
+        '<span class="cnt">' + main + '</span>' +
+        (other > 0 ? '<span class="sub-cnt">' + other + ' ' + otherLabel + '</span>' : '') +
+        '</div>';
     });
     html += '</div>';
     return html;
@@ -257,17 +282,18 @@
     var detailed = data.trackPlayers && squad;
     homeZone.classList.toggle('detailed', !!detailed);
     appEl.classList.toggle('detailed-layout', !!detailed);
+    posBtn.disabled = !detailed;
     if(detailed){
       homeHint.style.display = 'none';
       playerArea.style.display = 'block';
-      var total = squad.attackers.length + squad.midcourt.length + squad.defenders.length;
-      if(total === 0){
+      var allNames = squad.attackers.concat(squad.interceptions).filter(inRoster);
+      if(allNames.length === 0){
         playerArea.innerHTML = '<div class="empty-msg">No players saved for ' + escapeHtml(squad.name) + ' yet.<br>Tap the settings icon below to add attackers.</div>';
       } else {
-        var html = '';
-        html += playerGroupHtml(squad.attackers, 'attacker', 'ATTACKERS (GOALS)', 'attackers');
-        html += playerGroupHtml(squad.midcourt, 'midcourt', 'MID COURT (INTERCEPTIONS)', 'midcourt');
-        html += playerGroupHtml(squad.defenders, 'defender', 'DEFENDERS (INTERCEPTIONS)', 'defenders');
+        var attackerNames = allNames.filter(function(n){ return currentPosition(n) === 'attacker'; });
+        var interceptionNames = allNames.filter(function(n){ return currentPosition(n) === 'interception'; });
+        var html = playerGroupHtml(attackerNames, 'attacker', 'ATTACKERS (GOALS)', 'attackers') +
+          playerGroupHtml(interceptionNames, 'interception', 'INTERCEPTIONS', 'defenders');
         if(html === ''){ html = '<div class="empty-msg">No one selected for today.<br>Tap NEW MATCH to pick who\'s playing.</div>'; }
         playerArea.innerHTML = html;
       }
@@ -291,10 +317,15 @@
   }
 
   function addPlayerEvent(name, type){
-    if(!playerStats[name]){ playerStats[name] = { count:0, type:type }; }
-    playerStats[name].count = playerStats[name].count + 1;
-    if(type === 'attacker'){ home = home + 1; }
-    actionHistory.push({ type:'player', name:name, playerType:type });
+    if(!playerStats[name]){ playerStats[name] = { goals:0, interceptions:0 }; }
+    if(type === 'attacker'){
+      playerStats[name].goals = playerStats[name].goals + 1;
+      home = home + 1;
+      actionHistory.push({ type:'player', name:name, statType:'goal' });
+    } else {
+      playerStats[name].interceptions = playerStats[name].interceptions + 1;
+      actionHistory.push({ type:'player', name:name, statType:'interception' });
+    }
     render();
   }
 
@@ -321,8 +352,15 @@
     if(last.type === 'home'){ home = Math.max(0, home - 1); }
     else if(last.type === 'away'){ away = Math.max(0, away - 1); }
     else if(last.type === 'player'){
-      if(playerStats[last.name]){ playerStats[last.name].count = Math.max(0, playerStats[last.name].count - 1); }
-      if(last.playerType === 'attacker'){ home = Math.max(0, home - 1); }
+      var stats = playerStats[last.name];
+      if(stats){
+        if(last.statType === 'goal'){
+          stats.goals = Math.max(0, stats.goals - 1);
+          home = Math.max(0, home - 1);
+        } else {
+          stats.interceptions = Math.max(0, stats.interceptions - 1);
+        }
+      }
     }
     render();
   });
@@ -331,6 +369,13 @@
     currentRoster = roster;
     home = 0; away = 0; actionHistory = [];
     awayNameInput.value = 'OPPONENT';
+    var squad = getActiveSquad();
+    matchPositions = {};
+    if(squad && roster){
+      roster.forEach(function(name){
+        matchPositions[name] = squad.attackers.indexOf(name) !== -1 ? 'attacker' : 'interception';
+      });
+    }
     resetPlayerStats();
     render();
   }
@@ -415,8 +460,7 @@
   function openLineupModal(squad){
     var html = '';
     if(squad.attackers.length){ html += '<div class="section-label attackers">ATTACKERS</div>' + lineupGroupHtml(squad.attackers, squad.lastSelected); }
-    if(squad.midcourt.length){ html += '<div class="section-label midcourt">MID COURT</div>' + lineupGroupHtml(squad.midcourt, squad.lastSelected); }
-    if(squad.defenders.length){ html += '<div class="section-label defenders">DEFENDERS</div>' + lineupGroupHtml(squad.defenders, squad.lastSelected); }
+    if(squad.interceptions.length){ html += '<div class="section-label defenders">INTERCEPTIONS</div>' + lineupGroupHtml(squad.interceptions, squad.lastSelected); }
     if(html === ''){ html = '<div class="empty-msg">This squad has no players yet. Add some via the settings icon.</div>'; }
     lineupList.innerHTML = html;
     lineupModalBackdrop.classList.remove('hidden');
@@ -435,6 +479,44 @@
   });
   lineupModalBackdrop.addEventListener('click', function(e){
     if(e.target === lineupModalBackdrop){ lineupModalBackdrop.classList.add('hidden'); }
+  });
+
+  /* ---------- Positions modal ---------- */
+  var positionsModalBackdrop = document.getElementById('positionsModalBackdrop');
+  var positionsList = document.getElementById('positionsList');
+
+  function renderPositionsList(){
+    var names = currentRoster || [];
+    var html = '';
+    names.forEach(function(name){
+      var pos = currentPosition(name);
+      html += '<div class="squad-row">' +
+        '<span style="flex:1;color:#fff;font-weight:700;">' + escapeHtml(name) + '</span>' +
+        '<button class="pos-toggle-btn' + (pos === 'attacker' ? ' active-attacker' : '') + '" data-posname="' + escapeHtml(name) + '" data-posval="attacker">Attack</button>' +
+        '<button class="pos-toggle-btn' + (pos === 'interception' ? ' active-interception' : '') + '" data-posname="' + escapeHtml(name) + '" data-posval="interception">Intercept</button>' +
+        '</div>';
+    });
+    positionsList.innerHTML = html || '<div class="empty-msg">No players in today\'s lineup.</div>';
+    positionsList.querySelectorAll('.pos-toggle-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        matchPositions[btn.getAttribute('data-posname')] = btn.getAttribute('data-posval');
+        renderPositionsList();
+        render();
+      });
+    });
+  }
+
+  posBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    if(posBtn.disabled){ return; }
+    renderPositionsList();
+    positionsModalBackdrop.classList.remove('hidden');
+  });
+  document.getElementById('positionsDoneBtn').addEventListener('click', function(){
+    positionsModalBackdrop.classList.add('hidden');
+  });
+  positionsModalBackdrop.addEventListener('click', function(e){
+    if(e.target === positionsModalBackdrop){ positionsModalBackdrop.classList.add('hidden'); }
   });
 
   /* ---------- Squad settings modal ---------- */
@@ -466,8 +548,7 @@
     if(!squad){ return; }
     document.getElementById('editSquadName').value = squad.name;
     document.getElementById('editAttackers').value = squad.attackers.join('\n');
-    document.getElementById('editMidcourt').value = squad.midcourt.join('\n');
-    document.getElementById('editDefenders').value = squad.defenders.join('\n');
+    document.getElementById('editInterceptions').value = squad.interceptions.join('\n');
     squadListView.style.display = 'none';
     squadEditView.style.display = 'block';
   }
@@ -513,7 +594,7 @@
     name = name.trim();
     if(!name){ return; }
     var id = 's' + Date.now();
-    data.squads.push({ id:id, name:name, attackers:[], midcourt:[], defenders:[], lastSelected:null });
+    data.squads.push({ id:id, name:name, attackers:[], interceptions:[], lastSelected:null });
     if(!data.activeSquadId){ data.activeSquadId = id; }
     saveData();
     showEditView(id);
@@ -530,8 +611,7 @@
     var newName = document.getElementById('editSquadName').value.trim();
     squad.name = newName || squad.name;
     squad.attackers = document.getElementById('editAttackers').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
-    squad.midcourt = document.getElementById('editMidcourt').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
-    squad.defenders = document.getElementById('editDefenders').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    squad.interceptions = document.getElementById('editInterceptions').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
     saveData();
     showListView();
   });
@@ -551,6 +631,7 @@
     data = { squads: [], activeSquadId: null, trackPlayers: false };
     saveData();
     currentRoster = null;
+    matchPositions = {};
     home = 0; away = 0; actionHistory = [];
     playerStats = {};
     showListView();
